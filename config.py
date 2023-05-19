@@ -1,0 +1,1 @@
+PLAYER_HP: int = 100

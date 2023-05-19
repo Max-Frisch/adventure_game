@@ -1,8 +1,12 @@
 import armory
 import bestiary
 import random
+import combat
 from classes import Game, Player, Room
 from colorama import Fore, init
+from util import get_yn
+from time import sleep
+import config as cfg
 
 
 # welcome prints out the welcome text
@@ -59,6 +63,8 @@ def explore_labyrinth(current_game: Game):
         for item in current_game.room.items:
             print(f"{Fore.YELLOW}You see a {item['name']}")
 
+        # TODO: Consider changing logic, so that the first room the player spawns in can not
+        #       contain a monster
         if current_game.room.monster:
             print(f"{Fore.RED}There is a {current_game.room.monster['name']} here!")
             fight_or_flee = get_input("Do you want to fight or flee?", ["fight", "flee"])
@@ -72,10 +78,26 @@ def explore_labyrinth(current_game: Game):
                     # user wants to fight!
 
                     # call a function fight() and get a result  in a variable called winner
-                    # winner = combat.fight()
+                    winner = combat.fight(current_game)
                     # if winner is player, player wins; if it's monster, monster wins and if its flee,
                     # the player runs away
-                    pass
+                    if winner == "player":
+                        gold = random.randint(1, 100)
+                        print(f"You search the monster's dead body and find {gold} pieces of gold.")
+                        current_game.player.treasure = current_game.player.treasure + gold
+                        current_game.player.xp = current_game.player.xp + 100
+                        current_game.player.monsters_defeated = current_game.player.monsters_defeated + 1
+                        current_game.room.monster = {}
+                        break
+
+                    elif winner == "monster":
+                        print(f"{Fore.RED}You have failed on your mission, and your body lies in the "
+                              + "labyrinth forever.")
+                        play_again()
+                        break
+                    else:
+                        print(f"{Fore.CYAN}You flee in terror from the monster.")
+                        break
 
         player_input = input(f"{Fore.YELLOW}-> ").lower().strip()
 
@@ -123,6 +145,10 @@ def explore_labyrinth(current_game: Game):
             unequip_item(current_game.player, player_input[8:])
             continue
 
+        elif player_input in ["rest", "r"]:
+            rest(current_game)
+            continue
+
         elif player_input.startswith("remove"):
             unequip_item(current_game.player, player_input[7:])
             continue
@@ -153,6 +179,25 @@ def explore_labyrinth(current_game: Game):
         current_game.room.print_description()
 
 
+# rest lets the player sit down and recover hit points periodically, until fully healed.
+def rest(current_game: Game):
+    if current_game.player.hp == cfg.PLAYER_HP:
+        print(f"{Fore.CYAN}You are fully rested and feel great. There is no point in sitting around..")
+    else:
+        print(f"{Fore.CYAN}You sit down and recover from the battles you have fought..")
+        while True:
+            current_game.player.hp = current_game.player.hp + random.randint(1, 10)
+            if current_game.player.hp > cfg.PLAYER_HP:
+                current_game.player.hp = cfg.PLAYER_HP
+                print(f"{Fore.CYAN}Fully rested you stand back up, ready to continue.")
+                break
+
+            print(f"{Fore.CYAN}You feel better ({current_game.player.hp}/{cfg.PLAYER_HP} hit points).")
+            sleep(3)
+
+
+# print_status prints the current players status, as in monsters defeated, gold collected, xp gained,
+# the players current hit points, as well as currently worn equipment.
 def print_status(current_game: Game):
     print(Fore.CYAN)
     print(f"You have played the game for {current_game.player.turns} turns, "
@@ -165,6 +210,8 @@ def print_status(current_game: Game):
     print(f"Currently equipped armor: {current_game.player.current_armor['name']}.")
 
 
+# unequip_item unequips a currently worn item, as long the item exists in the inventory
+# and the player currently wears it
 def unequip_item(player: Player, item: str):
     if item in player.inventory:
         # is the item actually equipped?
@@ -183,6 +230,8 @@ def unequip_item(player: Player, item: str):
         print(f"{Fore.RED}You don't have a {item}!")
 
 
+# use_item equips an item from the players inventory, if the item exists
+# and checks if this item is not already worn.
 def use_item(player: Player, item: str):
     if item in player.inventory:
         old_weapon = player.current_weapon
@@ -218,6 +267,7 @@ def use_item(player: Player, item: str):
         print(f"{Fore.RED}You don't have a {item}.")
 
 
+# drop_an_item drops an item from the players inventory. Can only drop an item, if it is not worn currently.
 def drop_an_item(current_game: Game, player_input: str):
     # TODO: remove item stats from player, if worn item is dropped
     try:
@@ -232,6 +282,7 @@ def drop_an_item(current_game: Game, player_input: str):
         print(f"{Fore.RED}You are not carrying a {player_input[5:]}!")
 
 
+# show_inventory prints out all equipment currently in the players inventory, including gold coins.
 def show_inventory(current_game: Game):
     # TODO: add <worn> and <held> as prefix to item name, if item in inventory is currently used
     print(f"{Fore.CYAN}Your inventory:")
@@ -286,21 +337,6 @@ def play_again():
     else:
         print("Until next time, adventurer.")
         exit(0)
-
-
-# get_yn takes a question as a parameter and only accepts yes/no/y/n as possible responses.
-# It returns either yes or no
-def get_yn(question: str) -> str:
-    while True:
-        answer = input(question + " (yes / no) -> ").lower().strip()
-        if answer not in ["yes", "no", "y", "n"]:
-            print("Please enter yes or no.")
-        else:
-            if answer == "y":
-                answer = "yes"
-            elif answer == "n":
-                answer = "no"
-            return answer
 
 
 # get_input prompts the user for input, and limits responses to whatever is in the list "answers"
