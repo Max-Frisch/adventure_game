@@ -11,6 +11,8 @@ descriptions = (
     "Scattered bits of bone, armor, and rusted weaponry suggest that a major battle took place here long ago.",
     "From the scorch marks on the walls and floor, it appears that something burned here not too long ago. Given the "
     "amount of scorching, it must have been a huge blaze.",
+    "Large rock boulders in the floor make it hard to move, parts of the ceiling must have broken drown.",
+
 )
 
 # smells is a tuple of odours in the room. One entry is chosen randomly every time a new room is generated
@@ -33,4 +35,7 @@ sounds = (
     "You hear a faint grunting noise from somewhere in the distance.",
     "What sounds like faint laughter wends its way into the room.",
     "You're not sure, but something like a faint hiss seems to sound off in the distance.",
+    "You hear some squeeking sounds from between the stones and roots on the floor.",
+    "A low humming noise echoes from somewhere in the distance.",
+    "The scaring sound of something heavy bashing against a wooden door makes you shiver.",
 )
