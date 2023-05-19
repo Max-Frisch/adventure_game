@@ -61,6 +61,21 @@ def explore_labyrinth(current_game: Game):
 
         if current_game.room.monster:
             print(f"{Fore.RED}There is a {current_game.room.monster['name']} here!")
+            fight_or_flee = get_input("Do you want to fight or flee?", ["fight", "flee"])
+
+            while True:
+                if fight_or_flee == "flee":
+                    # user runs away
+                    print(f"{Fore.CYAN}You turn around and run, coward that you are..")
+                    break
+                else:
+                    # user wants to fight!
+
+                    # call a function fight() and get a result  in a variable called winner
+                    # winner = combat.fight()
+                    # if winner is player, player wins; if it's monster, monster wins and if its flee,
+                    # the player runs away
+                    pass
 
         player_input = input(f"{Fore.YELLOW}-> ").lower().strip()
 
@@ -286,6 +301,16 @@ def get_yn(question: str) -> str:
             elif answer == "n":
                 answer = "no"
             return answer
+
+
+# get_input prompts the user for input, and limits responses to whatever is in the list "answers"
+def get_input(question: str, answers: list) -> str:
+    while True:
+        resp = input(f"{Fore.CYAN}{question} -> ").lower().strip()
+        if resp not in answers:
+            print(f"{Fore.CYAN}Please enter a valid response.")
+        else:
+            return resp
 
 
 # show_help prints the help text
