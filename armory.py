@@ -118,8 +118,8 @@ default = {
     },
     "clothes": {
         "name": "clothes",
-        "type": "armor",
         "defense": 0,
+        "type": "armor",
     },
     "no shield": {
         "name": "no shield",
