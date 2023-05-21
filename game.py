@@ -1,17 +1,21 @@
 import armory
 import bestiary
-import random
 import combat
+import cursor
+import random
+import sys
 import world
 from classes import Game, Player, Room
 from colorama import Fore, init, Back
 from util import get_yn
+from util import draw_ui
 from time import sleep
 import config as cfg
 
 
 # welcome prints out the welcome text
 def welcome(current_game: Game):
+    cursor.hide()
     print(Fore.RED + "                                               D U N G E O N")
     print(Fore.GREEN + """
     The village of Honeywood has been terrorized by strange, deadly creatures for months now. Unable to endure any
@@ -21,7 +25,26 @@ def welcome(current_game: Game):
     ready to do battle....""")
 
     print()
-    print(f"According to the people of Honeywood, there are {current_game.num_monsters} creatures in this labyrinth.")
+    print(
+        f"    According to the people of Honeywood, there are {current_game.num_monsters} creatures in this labyrinth.")
+    print()
+    sleep(1.5)
+
+    print(f"{Fore.YELLOW}    Something smashes into the back of your head, and you fall down, senseless..")
+    print()
+
+    for x in range(45):
+        print(" ", end="")
+
+    for x in range(12):
+        print(f"{Fore.YELLOW}.", end="")
+        sys.stdout.flush()
+        sleep(0.25)
+    print()
+
+    print(Fore.GREEN + """
+    You awaken, some unknown time later, only to discover that nearly all of your possessions are missing. 
+    You grid  your teeth, climb to your feet, and press on, determined to complete your mission.""")
     print()
 
 
@@ -48,7 +71,10 @@ def play_game(term):
     welcome(current_game)
 
     # get player input
+    cursor.show()
+    print(f"{Fore.CYAN}(Type help or h to get a list of the available commands.)")
     input(f"{Fore.CYAN}Press ENTER to continue")
+    print()
     current_game.room.print_description()
     explore_labyrinth(current_game)
 
@@ -82,18 +108,30 @@ def explore_labyrinth(current_game: Game):
         #       contain a monster
         if current_game.room.monster:
             print(f"{Fore.RED}There is a {current_game.room.monster['name']} here!")
+
+            # draw the top status bar
+            draw_ui(current_game)
+
             fight_or_flee = get_input("Do you want to fight or flee?", ["fight", "flee"])
 
             while True:
                 if fight_or_flee == "flee":
                     # user runs away
                     print(f"{Fore.CYAN}You turn around and run, coward that you are..")
+
+                    # draw the top status bar
+                    draw_ui(current_game)
+
                     break
                 else:
                     # user wants to fight!
 
                     # call a function fight() and get a result  in a variable called winner
                     winner = combat.fight(current_game)
+
+                    # draw the top status bar
+                    draw_ui(current_game)
+
                     # if winner is player, player wins; if it's monster, monster wins and if its flee,
                     # the player runs away
                     if winner == "player":
@@ -103,25 +141,43 @@ def explore_labyrinth(current_game: Game):
                         current_game.player.xp = current_game.player.xp + 100
                         current_game.player.monsters_defeated = current_game.player.monsters_defeated + 1
                         current_game.room.monster = {}
+
+                        # draw the top status bar
+                        draw_ui(current_game)
                         break
 
                     elif winner == "monster":
                         print(f"{Fore.RED}You have failed on your mission, and your body lies in the "
                               + "labyrinth forever.")
+
+                        # draw the top status bar
+                        draw_ui(current_game)
+
                         play_again()
                         break
                     else:
                         print(f"{Fore.CYAN}You flee in terror from the monster.")
+
+                        # draw the top status bar
+                        draw_ui(current_game)
                         break
+
+        # draw the top status bar
+        draw_ui(current_game)
 
         player_input = input(f"{Fore.YELLOW}-> ").lower().strip()
 
         # do something with that input
         if player_input in ["help", "h"]:
             show_help()
+            continue
 
         elif player_input in ["look", "l"]:
             current_game.room.print_description()
+            continue
+
+        elif player_input.startswith("examine"):
+            examine(player_input[8:])
             continue
 
         elif player_input in ["map", "m"]:
@@ -213,6 +269,10 @@ def explore_labyrinth(current_game: Game):
 
             print(f"{Fore.GREEN}You move deeper into the dungeon.")
 
+            # draw the top status bar
+            draw_ui(current_game)
+
+
         elif player_input == "status":
             print_status(current_game)
             continue
@@ -220,7 +280,7 @@ def explore_labyrinth(current_game: Game):
         # quit the game
         elif player_input in ["quit", "q"]:
             print(f"{Fore.GREEN}Overcome with terror, you flee the dungeon, and are forever branded a coward.")
-            # TODO: print out final score
+            print_final_score(current_game)
             play_again()
 
         elif player_input == "":
@@ -245,6 +305,7 @@ def explore_labyrinth(current_game: Game):
 
 # rest lets the player sit down and recover hit points periodically, until fully healed.
 def rest(current_game: Game):
+    # TODO: add option to interrupt resting with keypress
     if current_game.player.hp == cfg.PLAYER_HP:
         print(f"{Fore.CYAN}You are fully rested and feel great. There is no point in sitting around..")
     else:
@@ -258,6 +319,23 @@ def rest(current_game: Game):
 
             print(f"{Fore.CYAN}You feel better ({current_game.player.hp}/{cfg.PLAYER_HP} hit points).")
             sleep(3)
+
+
+def examine(item: str):
+    print(f"{Fore.CYAN}It's just a normal {item}. There is nothing special about it.")
+
+
+def print_final_score(current_game: Game):
+    print(f"{Fore.CYAN}In {current_game.player.turns} turns, you defeated {current_game.player.monsters_defeated} "
+          + f"monsters, accumulated {current_game.player.treasure} gold, and made {current_game.player.xp} xp.")
+
+    if current_game.player.xp > 500:
+        print(f"{Fore.GREEN}Well done, adventurer.")
+    elif current_game.player.xp > 250:
+        print(f"{Fore.YELLOW}Not bad, adventurer.")
+    else:
+        print(f"{Fore.RED}I guess it's amateur night...")
+    draw_ui(current_game)
 
 
 def show_map(current_game: Game):
@@ -463,22 +541,10 @@ def show_help():
     - look: look around and describe your environment
     - equip <item>: use an item from your inventory
     - unequip <item>: stop using an item from your inventory
-    - fight: attack a foe
     - examine <object>: examine an object more closely
     - get <item>: pick up an item
-    - drop <item>: drop the item
+    - drop <item>: drop the item (unequip first)
     - rest: restore some health by resting
     - inventory: show your inventory
     - status: show current player status
     - quit: end the game""")
-
-
-def draw_ui(current_game: Game):
-    # print info bar across the entire window
-    with current_game.term.location(0, 0):
-        for i in range(current_game.term.width):
-            print(current_game.term.on_green(" "), end="")
-
-    # write health status on top of the bar
-    with current_game.term.location(5, 0):
-        print(current_game.term.black_on_green(f"Health: {current_game.player.hp}/{cfg.PLAYER_HP}"))

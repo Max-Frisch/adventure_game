@@ -27,8 +27,6 @@ def fight(current_game: Game) -> str:
     monster_hp = random.randint(room.monster["min_hp"], room.monster["max_hp"])
     monster_original_hp = monster_hp
 
-    # TODO: adjust attacks rolls for player and monster based on the stats of the weapons, armor, etc.
-
     winner = ""
 
     while True:
