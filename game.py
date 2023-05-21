@@ -100,7 +100,7 @@ def generate_room(location: str) -> Room:
 # on that input
 def explore_labyrinth(current_game: Game):
     while True:
-        # TODO: add logic to not print out the item and monster after every "get", "drop", "inventory"
+        # TODO: add some kind of animated text, after the player has defeated all monsters.
         for item in current_game.room.items:
             print(f"{Fore.YELLOW}You see a {item['name']}")
 
@@ -310,6 +310,7 @@ def rest(current_game: Game):
         print(f"{Fore.CYAN}You are fully rested and feel great. There is no point in sitting around..")
     else:
         print(f"{Fore.CYAN}You sit down and recover from the battles you have fought..")
+        cursor.hide()
         while True:
             current_game.player.hp = current_game.player.hp + random.randint(1, 10)
             if current_game.player.hp > cfg.PLAYER_HP:
@@ -318,13 +319,16 @@ def rest(current_game: Game):
                 break
 
             print(f"{Fore.CYAN}You feel better ({current_game.player.hp}/{cfg.PLAYER_HP} hit points).")
-            sleep(3)
+            sleep(2)
+        cursor.show()
 
 
 def examine(item: str):
     print(f"{Fore.CYAN}It's just a normal {item}. There is nothing special about it.")
 
 
+# print_final_score prints out how many monsters were defeted in how many turns and how much
+# gold and xp was collected.
 def print_final_score(current_game: Game):
     print(f"{Fore.CYAN}In {current_game.player.turns} turns, you defeated {current_game.player.monsters_defeated} "
           + f"monsters, accumulated {current_game.player.treasure} gold, and made {current_game.player.xp} xp.")
@@ -338,6 +342,7 @@ def print_final_score(current_game: Game):
     draw_ui(current_game)
 
 
+# show_map prints a map grind with icons for current position, monster and exit
 def show_map(current_game: Game):
     # print the top line
     for i in range(1, cfg.MAX_X_AXIS * 6 + 3):
@@ -432,12 +437,10 @@ def use_item(player: Player, item: str):
                 print(f"{Fore.CYAN}Since you can't use a shield with the {item}, you sling it over your back.")
 
         elif armory.items[item]["type"] == "armor":
-            # TODO: handle if player already wears a different armor
             player.current_armor = armory.items[item]
             print(f"{Fore.CYAN}You put on the {player.current_armor['name']}.")
 
         elif armory.items[item]["type"] == "shield":
-            # TODO: handle if player already holds a different shield
             if player.current_weapon["name"] == "longbow":
                 print(f"{Fore.RED}You can't use a shield while you are using a bow!")
             else:
@@ -453,7 +456,6 @@ def use_item(player: Player, item: str):
 
 # drop_an_item drops an item from the players inventory. Can only drop an item, if it is not worn currently.
 def drop_an_item(current_game: Game, player_input: str):
-    # TODO: remove item stats from player, if worn item is dropped
     try:
         if current_game.player.current_weapon["name"] == player_input[5:] or current_game.player.current_armor[
             "name"] == player_input[5:] or current_game.player.current_shield["name"] == player_input[5:]:
@@ -468,7 +470,6 @@ def drop_an_item(current_game: Game, player_input: str):
 
 # show_inventory prints out all equipment currently in the players inventory, including gold coins.
 def show_inventory(current_game: Game):
-    # TODO: add <worn> and <held> as prefix to item name, if item in inventory is currently used
     print(f"{Fore.CYAN}Your inventory:")
     print(f"    - {current_game.player.treasure} pieces of gold.")
 

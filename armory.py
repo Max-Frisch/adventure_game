@@ -1,4 +1,3 @@
-# items is a dictionary of all possible items in the game
 items = {
     "longsword": {
         "name": "longsword",
@@ -61,14 +60,9 @@ items = {
         "defense": 5,
         "type": "shield",
     },
-    "tower shield": {
-        "name": "tower shield",
-        "defense": 25,
-        "type": "shield",
-    },
-    "kite shield": {
-        "name": "kite shield",
-        "defense": 20,
+    "small shield": {
+        "name": "small shield",
+        "defense": 10,
         "type": "shield",
     },
     "round shield": {
@@ -76,19 +70,20 @@ items = {
         "defense": 15,
         "type": "shield",
     },
-    "small shield": {
-        "name": "small shield",
-        "defense": 10,
+    "kite shield": {
+        "name": "kite shield",
+        "defense": 20,
         "type": "shield",
     },
+    "tower shield": {
+        "name": "tower shield",
+        "defense": 25,
+        "type": "shield",
+    },
+
     "leather armor": {
         "name": "leather armor",
         "defense": 10,
-        "type": "armor",
-    },
-    "chain mail": {
-        "name": "chain mail",
-        "defense": 20,
         "type": "armor",
     },
     "ring mail": {
@@ -96,6 +91,12 @@ items = {
         "defense": 15,
         "type": "armor",
     },
+    "chain mail": {
+        "name": "chain mail",
+        "defense": 20,
+        "type": "armor",
+    },
+
     "water skin": {
         "name": "water skin",
         "type": "item",
@@ -105,6 +106,7 @@ items = {
         "type": "item",
     },
 }
+# items is a dictionary of all possible items in the game
 
 # default is a dictionary of default items the player has. This is only used at game start,
 # and if the player drops armor or shield

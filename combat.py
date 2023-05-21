@@ -48,7 +48,8 @@ def fight(current_game: Game) -> str:
         else:
             # monster's turn
             monster_roll = random.randint(1, 100)
-            modified_monster_roll = monster_roll - (player.current_shield["defense"] + player.current_armor["defense"])
+            modified_monster_roll = monster_roll - (player.current_shield["defense"])
+            modified_monster_roll = modified_monster_roll - (player.current_armor["defense"])
 
             if modified_monster_roll > 50:
                 print(f"{Fore.RED}The {room.monster['name']} attacks and hits")

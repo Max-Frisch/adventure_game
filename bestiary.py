@@ -1,5 +1,13 @@
 monsters = [
     {
+        "name": "Zombie",
+        "min_hp": 5,
+        "max_hp": 20,
+        "min_damage": 1,
+        "max_damage": 20,
+        "armor_modifier": -10
+    },
+    {
         "name": "Orc",
         "min_hp": 10,
         "max_hp": 20,
@@ -23,14 +31,7 @@ monsters = [
         "max_damage": 25,
         "armor_modifier": 10
     },
-    {
-        "name": "Zombie",
-        "min_hp": 5,
-        "max_hp": 20,
-        "min_damage": 1,
-        "max_damage": 20,
-        "armor_modifier": -10
-    },
+
     {
         "name": "Vampire",
         "min_hp": 25,
