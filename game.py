@@ -26,12 +26,12 @@ def welcome(current_game: Game):
 
 
 # play_game prints the welcome screen and starts the game
-def play_game():
+def play_game(term):
     # init makes sure that colorama works on various platforms
     init()
 
     adventurer = Player()
-    current_game = Game(adventurer, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
+    current_game = Game(adventurer, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS, term)
 
     all_rooms, num_monsters = world.create_world(current_game)
     current_game.num_monsters = num_monsters
@@ -41,6 +41,9 @@ def play_game():
     current_game.set_current_room(current_game.rooms[entrance])
     current_game.set_entrance(entrance)
     current_game.room.location = entrance
+
+    # draw the top status bar
+    draw_ui(current_game)
 
     welcome(current_game)
 
@@ -468,3 +471,14 @@ def show_help():
     - inventory: show your inventory
     - status: show current player status
     - quit: end the game""")
+
+
+def draw_ui(current_game: Game):
+    # print info bar across the entire window
+    with current_game.term.location(0, 0):
+        for i in range(current_game.term.width):
+            print(current_game.term.on_green(" "), end="")
+
+    # write health status on top of the bar
+    with current_game.term.location(5, 0):
+        print(current_game.term.black_on_green(f"Health: {current_game.player.hp}/{cfg.PLAYER_HP}"))
